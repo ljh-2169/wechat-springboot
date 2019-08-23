@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+  <context id="context1">
+    <commentGenerator>
+      <property name="suppressDate" value="true" />
+      <property name="suppressAllComments" value="true" />
+    </commentGenerator>
+    <jdbcConnection connectionURL="jdbc:mysql://127.0.0.1:3306/wechat?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=GMT" driverClass="com.mysql.cj.jdbc.Driver" password="" userId="root" />
+    <javaModelGenerator targetPackage="com.mycompany.myapp.pojo" targetProject="wechat/src/main/java" />
+    <sqlMapGenerator targetPackage="com.mycompany.myapp.mapping" targetProject="wechat/src/main/java" />
+    <javaClientGenerator targetPackage="com.mycompany.myapp.dao" targetProject="wechat/src/main/java" type="XMLMAPPER" />
+    <!-- <table tableName="address" domainObjectName="Address" enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+    </table> -->
+<!--     <table tableName="user_info" domainObjectName="User" enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+    </table> --> 
+    <table tableName="message" domainObjectName="Amessage" enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+    </table>
+  </context>
+</generatorConfiguration>

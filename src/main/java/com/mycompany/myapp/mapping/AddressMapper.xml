@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mycompany.myapp.dao.AddressMapper">
+  <resultMap id="BaseResultMap" type="com.mycompany.myapp.pojo.Address">
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="friend_id" jdbcType="VARCHAR" property="friendId" />
+  </resultMap>
+  
+  <select id="selectFriendId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select friend_id
+		from address
+		where user_id = #{user_id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectAddressById" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select *
+		from address
+		where user_id = #{user_id,jdbcType=VARCHAR}
+  </select>
+    
+  <insert id="insert" parameterType="com.mycompany.myapp.pojo.Address">
+    insert into address (id, user_id, friend_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{friendId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mycompany.myapp.pojo.Address">
+    insert into address
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="friendId != null">
+        friend_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="friendId != null">
+        #{friendId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mycompany.myapp.dao.UserMapper">
+  <resultMap id="BaseResultMap" type="com.mycompany.myapp.pojo.User">
+    <result column="chat_id" jdbcType="VARCHAR" property="chatId" />
+    <result column="chat_name" jdbcType="VARCHAR" property="chatName" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="imgurl" jdbcType="VARCHAR" property="imgurl" />
+  </resultMap>
+  
+  <resultMap id="ChatListMap" type="com.mycompany.myapp.pojo.ChatList">
+    <result column="chat_id" jdbcType="VARCHAR" property="chatId" />
+    <result column="chat_name" jdbcType="VARCHAR" property="chatName" />
+    <result column="imgurl" jdbcType="VARCHAR" property="imgurl" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="time" jdbcType="TIMESTAMP" property="time" />
+    <result column="unread" jdbcType="INTEGER" property="unread" />
+  </resultMap>
+  <select id="selectChatList" parameterType="java.lang.String"
+		resultMap="ChatListMap">
+		select user_info.chat_id, user_info.chat_name, user_info.imgurl, B.type, B.content, B.time, C.unread
+        from user_info,
+             (select A.*, IF(from_id=#{chat_id,jdbcType=VARCHAR},to_id,from_id) AS chatlist_friendid from 
+              (select * from message where from_id =#{chat_id,jdbcType=VARCHAR} or to_id =#{chat_id,jdbcType=VARCHAR} ORDER BY time desc)A
+              group by CONCAT(if(A.from_id>A.to_id,A.from_id,A.to_id),if(A.to_id>A.from_id,A.from_id,A.to_id))
+              order by time desc)B LEFT JOIN 
+             (select from_id,sum(unread)as unread  from message where to_id=#{chat_id,jdbcType=VARCHAR} group by from_id)C
+             on B.chatlist_friendid=C.from_id
+        where user_info.chat_id=B.chatlist_friendid
+        ORDER BY B.time desc
+		<!-- select A.*, B.unread 
+		from (select chat_id,chat_name,imgurl from user_info
+              where chat_id!=#{chat_id,jdbcType=VARCHAR} 
+                and(chat_id in (select from_id from message where to_id =#{chat_id,jdbcType=VARCHAR})
+                    or chat_id in (select to_id from message where from_id =#{chat_id,jdbcType=VARCHAR})))A LEFT JOIN
+             (select from_id,sum(unread)as unread  from message where to_id=#{chat_id,jdbcType=VARCHAR} group by from_id)B
+             on A.chat_id=B.from_id -->
+  </select>
+  
+  <select id="selectByIdPwd" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select *
+		from user_info
+		where chat_id = #{chat_id,jdbcType=VARCHAR} and 
+		password = #{password,jdbcType=VARCHAR}
+  </select>
+  
+    <select id="selectByChatId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select *
+		from user_info
+		where chat_id = #{chat_id,jdbcType=VARCHAR} 
+  </select>
+  
+  <select id="selectById" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select user_info.*
+		from user_info, address
+		where user_info.chat_id = address.friend_id and address.user_id = #{user_id}
+		order by convert(user_info.chat_name using gbk) asc
+  </select>
+  
+  <select id="selectByIdMessage" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select *
+		from user_info
+		where chat_id!=#{chat_id,jdbcType=VARCHAR} and 
+		(chat_id in (select from_id from message where to_id =#{chat_id,jdbcType=VARCHAR})
+		or chat_id in (select to_id from message where from_id =#{chat_id,jdbcType=VARCHAR}))
+  </select>
+  
+  <update id="updateNameSelective" parameterType="com.mycompany.myapp.pojo.User">
+		update user_info
+		<set>
+			<if test="newname != null">
+				chat_name = #{newname,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where chat_id = #{chat_id,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="updatePhotoById" parameterType="com.mycompany.myapp.pojo.User">
+		update user_info
+		<set>
+			<if test="imgurl != null">
+				imgurl = #{imgurl,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where chat_id = #{chat_id,jdbcType=VARCHAR}
+	</update>
+  
+  
+  <insert id="insert" parameterType="com.mycompany.myapp.pojo.User">
+    insert into user_info (chat_id, chat_name, password, 
+      imgurl)
+    values (#{chatId,jdbcType=VARCHAR}, #{chatName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{imgurl,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mycompany.myapp.pojo.User">
+    insert into user_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="chatId != null">
+        chat_id,
+      </if>
+      <if test="chatName != null">
+        chat_name,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="imgurl != null">
+        imgurl,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="chatId != null">
+        #{chatId,jdbcType=VARCHAR},
+      </if>
+      <if test="chatName != null">
+        #{chatName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="imgurl != null">
+        #{imgurl,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>
